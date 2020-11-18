@@ -49,7 +49,8 @@ net = blockwiseModules(datExpr, power = 6,
 # Convert labels to colors for plotting
 mergedColors = labels2colors(net$colors)
 fn = paste0(workingDir, '/', sample, ".dendogramModules.png")
-png(file = fn, width = 12, height = 9);
+png(file = fn, width = 12, height = 9, units="in", res=300);
+par(mar = c(6, 8.5, 3, 3));
 plotDendroAndColors(net$dendrograms[[1]], mergedColors[net$blockGenes[[1]]],
     "Module colors", dendroLabels = FALSE, hang = 0.03,
     addGuide = TRUE, guideHang = 0.05)
