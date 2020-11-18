@@ -8,6 +8,8 @@ rule dump_cmi_pb_tables:
         rnaseq_dump = 'output/database_dump/rnaseq_dump.tsv'
     params:
         outdir = 'output/database_dump/'
+    log:
+        'logs/rule_dump_cmi_pb_tables.log'
     shell:
         """
             python scripts/dump_cmi_pb_tables.py {params.outdir}
@@ -21,6 +23,8 @@ checkpoint generate_wgcna_input:
         rules.dump_cmi_pb_tables.output.rnaseq_dump
     output:
         outdir = directory('output/wgcna/input')
+    log:
+        'logs/checkpoint_generate_wgcna_input.log'
     shell:
         """
             mkdir -p {output}
@@ -28,12 +32,14 @@ checkpoint generate_wgcna_input:
         """
 
 ##### Dump the Ab titer table from the CMI-PB website
-# Apply some cleaning as well 
+# Apply some cleaning as well
 rule extract_ab_titers_wgcna:
     input:
         rules.generate_wgcna_input.output.outdir
     output:
-        ab_pheno = 'output/wgcna/phenotypes/ab_titers_as_clinical_phenotypes.tsv' 
+        ab_pheno = 'output/wgcna/phenotypes/ab_titers_as_clinical_phenotypes.tsv'
+    log:
+        'logs/rule_extract_ab_titers_wgcna.log'
     shell: 
         """
             python scripts/extracting_ab_titer_for_WGCNA.py {output}
@@ -46,6 +52,8 @@ rule wgcna_sample_dendrogram:
     output:
         dendrogram = 'output/wgcna/runs/wgcna_day_{day}.sampleClustering.png',
         dendroConst = 'output/wgcna/runs/wgcna_day_{day}.dendrogramConstructed.RData'
+    log:
+        'logs/rule_wgcna_sample_dendrogram_{day}.log'
     shell:
         """
             Rscript scripts/wgcna_draw_sample_dendrogram.R {input.daybased_rnaseq} {output}
@@ -58,6 +66,8 @@ rule wgcna_sample_dendrogram_filtering:
         cutoff_txt = 'output/wgcna/manual_inputs/wgcna_day_{day}.sample_dendrogram_cutoffs.txt'
     output:
         fltExpr = 'output/wgcna/runs/wgcna_day_{day}.filteredExpression.RData'
+    log:
+        'logs/rule_wgcna_sample_dendrogram_filtering_{day}.log'
     shell:
         """
             Rscript scripts/wgcna_filter_samples_using_dendrogram.R {input} {output}
@@ -72,6 +82,8 @@ rule wgcna_create_rnaseq_modules:
         modules = 'output/wgcna/runs/wgcna_day_{day}.modules.tsv',
         eigen_expr = 'output/wgcna/runs/wgcna_day_{day}.eigengenes.expression.tsv',
         module_map = 'output/wgcna/runs/wgcna_day_{day}.modulemap.tsv'
+    log:
+        'logs/rule_wgcna_create_rnaseq_modules_{day}.log'
     shell:
         """
             Rscript scripts/wgcna_create_rnaseq_modules.R {input} {output}
@@ -96,6 +108,8 @@ rule wgcna_module_analyses_complete:
         get_eigengene_files
     output:
         'output/wgcna/runs/wgcna_module_analyses.complete.txt'
+    log:
+        'logs/rule_wgcna_module_analyses_complete.log'
     shell:
         """
             touch {output}
@@ -112,7 +126,9 @@ rule wgcna_correlate_modules_and_traits:
         png = 'output/wgcna/runs/wgcna_day_{day}.module_vs_igg_corr.png', 
         correlations = 'output/wgcna/runs/wgcna_day_{day}.module_vs_igg_corr.tsv',
         pvals = 'output/wgcna/runs/wgcna_day_{day}.module_vs_igg_pvals.tsv'
-    shell: 
+    log:
+        'logs/rule_wgcna_correlate_modules_and_traits_{day}.log'
+    shell:
         """
             Rscript scripts/wgcna_correlate_modules_and_traits.R {input} {output}
         """
