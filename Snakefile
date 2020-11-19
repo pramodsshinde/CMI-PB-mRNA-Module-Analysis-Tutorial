@@ -54,11 +54,10 @@ rule extract_ab_titers_wgcna:
 def get_wgcna_input_rnaseq(wildcards):
     # Using function to create a dependency on the generate wgcna input checkpoint
     checkpoint_dir = checkpoints.generate_wgcna_input.get(**wildcards).output[0]
-    rnaseq_input = 'wgcna_input_rnaseq_day_{day}.tsv'.format(wildcards.day)
+    rnaseq_input = 'wgcna_input_rnaseq_day_{day}.tsv'.format(day=wildcards.day)
     rnaseq_input = os.path.join(checkpoint_dir, rnaseq_input)
     return rnaseq_input
 
-#'output/wgcna/input/wgcna_input_rnaseq_day_{day}.tsv'
 rule wgcna_sample_dendrogram:
     input:
         daybased_rnaseq = get_wgcna_input_rnaseq

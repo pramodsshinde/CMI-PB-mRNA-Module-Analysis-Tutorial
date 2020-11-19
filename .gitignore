@@ -8,5 +8,4 @@ logs/
 */.Rhistory
 gmon.out
 output/*
-!output/wgcna/
 !output/wgcna/manual_inputs/
