@@ -51,9 +51,17 @@ rule extract_ab_titers_wgcna:
         """
 
 ##### Create a sample dendrogram for each split from generate_wgcna_input
+def get_wgcna_input_rnaseq(wildcards):
+    # Using function to create a dependency on the generate wgcna input checkpoint
+    checkpoint_dir = checkpoints.generate_wgcna_input.get(**wildcards).output[0]
+    rnaseq_input = 'wgcna_input_rnaseq_day_{day}.tsv'.format(wildcards.day)
+    rnaseq_input = os.path.join(checkpoint_dir, rnaseq_input)
+    return rnaseq_input
+
+#'output/wgcna/input/wgcna_input_rnaseq_day_{day}.tsv'
 rule wgcna_sample_dendrogram:
     input:
-        daybased_rnaseq = 'output/wgcna/input/wgcna_input_rnaseq_day_{day}.tsv'
+        daybased_rnaseq = get_wgcna_input_rnaseq
     output:
         dendrogram = 'output/wgcna/runs/wgcna_day_{day}.sampleClustering.png',
         dendroConst = 'output/wgcna/runs/wgcna_day_{day}.dendrogramConstructed.RData'
@@ -100,8 +108,8 @@ def get_eigengene_files(wildcards):
     checkpoint_dir = checkpoints.generate_wgcna_input.get(**wildcards).output[0]
 
     # getting all days 
-    frags_blanks = os.path.join(checkpoint_dir, 'wgcna_input_rnaseq_day_{day}.tsv')
-    days = glob_wildcards(frags_blanks).day
+    rnaseq_blanks = os.path.join(checkpoint_dir, 'wgcna_input_rnaseq_day_{day}.tsv')
+    days = glob_wildcards(rnaseq_blanks).day
 
     # returning all eigengene files 
     eg_fns = expand('output/wgcna/runs/wgcna_day_{day}.eigengenes.expression.tsv', day=days)

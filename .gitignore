@@ -1,9 +1,12 @@
 *~
 data/
-output/
 misc/
 logs/
 *.ipynb_checkpoints/
 .snakemake/
 *.Rhistory
+*/.Rhistory
 gmon.out
+output/*
+!output/wgcna/
+!output/wgcna/manual_inputs/
